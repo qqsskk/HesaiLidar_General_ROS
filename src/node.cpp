@@ -71,16 +71,16 @@ public:
 
   void lidarCallback(pcl::PointCloud<PointXYZIRADT>::Ptr cld, double timestamp, hesai_lidar::PandarScanPtr scan) // the timestamp from first point cloud of cld
   {
-    if(publish_packet_){
-      pandar_packet_pub_.publish(scan);
-      // printf("raw size: %zu.\n", scan->packets.size());
-    }
     cld->header.stamp = pcl_conversions::toPCL(ros::Time(timestamp));
     pandar_points_ex_pub_.publish(cld);
 
     const auto points_xyzir = convert(cld);
-    pandar_points_pub_.publish(points_xyzir);      
-    // printf("timestamp: %f, point size: %ld.\n",timestamp, cld->points.size());
+    pandar_points_pub_.publish(points_xyzir);
+    if(publish_packet_){
+      scan->header.stamp = ros::Time(timestamp);
+      scan->header.frame_id = cld->header.frame_id;
+      pandar_packet_pub_.publish(scan);
+    }
   }
   
 
